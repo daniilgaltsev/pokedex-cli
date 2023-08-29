@@ -9,11 +9,18 @@ import (
 
 
 type command struct {
-	// name string
 	help string
 	function func() error
 }
 var commands map[string]command
+
+type cliConfig struct {
+	prev string
+	next string
+	mapStart string
+	currentOffset int
+}
+var config cliConfig // NOTE: This should be made a non-global variable
 
 
 func exit() error {
@@ -29,24 +36,41 @@ func help() error {
 	return nil
 }
 
+
 func clean_input(s string) string {
 	s = strings.ToLower(s)
 	return s
 }
 
-func cli() {
+func initCli() {
+	config = cliConfig{
+		prev: "",
+		next: "",
+		mapStart: "https://pokeapi.co/api/v2/location-area/",
+	}
 	commands = map[string]command{
 		"exit": command{
-			// name: "exit",
 			help: "Exit the program",
 			function: exit,
 		},
 		"help": command{
-			// name: "help",
 			help: "Show this help message",
 			function: help,
 		},
+		"map": command{
+			help: "Show the next 20 locations",
+			function: pokemap,
+		},
+		"mapb": command{
+			help: "Show the previous 20 locations",
+			function: pokemapb,
+		},
 	}
+
+}
+
+func cli() {
+	initCli()
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for ;; {
@@ -57,7 +81,11 @@ func cli() {
 		recognized := false
 		for key, value := range commands {
 			if text == key {
-				value.function()
+				err := value.function()
+				if err != nil {
+					fmt.Printf("Error when executing %s: %s\n", text, err)
+				}
+
 				recognized = true
 			}
 		}
