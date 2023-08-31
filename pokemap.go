@@ -19,23 +19,30 @@ type mapResponse struct {
 }
 
 func pokemapGetAndParse(url string) (mapResponse, error) {
-	response, err := http.Get(url)
-	if err != nil {
-		return mapResponse{}, err
-	}
 
-	body, err := io.ReadAll(response.Body)
-	response.Body.Close()
-	if response.StatusCode > 299 {
-		return mapResponse{}, errors.New(fmt.Sprintf("Response code %d: %s", response.StatusCode, body))
-	}
-	if err != nil {
-		return mapResponse{}, err
+	var body []byte
+	body, ok := mapCache.Get(url)
+	if !ok {
+		response, err := http.Get(url)
+		if err != nil {
+			return mapResponse{}, err
+		}
+
+		body, err = io.ReadAll(response.Body)
+		response.Body.Close()
+		if response.StatusCode > 299 {
+			return mapResponse{}, errors.New(fmt.Sprintf("Response code %d: %s", response.StatusCode, body))
+		}
+		if err != nil {
+			return mapResponse{}, err
+		}
+
+		mapCache.Add(url, body)
 	}
 
 
 	locations := mapResponse{}
-	err = json.Unmarshal(body, &locations)
+	err := json.Unmarshal(body, &locations)
 	if err != nil {
 		return mapResponse{}, err
 	}

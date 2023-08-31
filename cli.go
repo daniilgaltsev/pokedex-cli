@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
-)
+	"time"
 
+	"github.com/daniilgaltsev/pokedex-cli/internal/cache"
+)
 
 type command struct {
 	help string
@@ -21,6 +23,8 @@ type cliConfig struct {
 	currentOffset int
 }
 var config cliConfig // NOTE: This should be made a non-global variable
+
+var mapCache = cache.NewCache(20 * time.Second) // NOTE: This should be made a non-global variable
 
 
 func exit() error {
