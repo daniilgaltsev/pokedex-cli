@@ -3,9 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io"
 	"encoding/json"
-	"net/http"
+
+	"github.com/daniilgaltsev/pokedex-cli/internal/pokeapi"
 )
 
 type mapResponse struct {
@@ -20,29 +20,13 @@ type mapResponse struct {
 
 func pokemapGetAndParse(url string) (mapResponse, error) {
 
-	var body []byte
-	body, ok := mapCache.Get(url)
-	if !ok {
-		response, err := http.Get(url)
-		if err != nil {
-			return mapResponse{}, err
-		}
-
-		body, err = io.ReadAll(response.Body)
-		response.Body.Close()
-		if response.StatusCode > 299 {
-			return mapResponse{}, errors.New(fmt.Sprintf("Response code %d: %s", response.StatusCode, body))
-		}
-		if err != nil {
-			return mapResponse{}, err
-		}
-
-		mapCache.Add(url, body)
+	body, err := pokeapi.Request(url, mapCache)
+	if err != nil {
+		return mapResponse{}, err
 	}
 
-
 	locations := mapResponse{}
-	err := json.Unmarshal(body, &locations)
+	err = json.Unmarshal(body, &locations)
 	if err != nil {
 		return mapResponse{}, err
 	}
@@ -50,7 +34,7 @@ func pokemapGetAndParse(url string) (mapResponse, error) {
 	return locations, nil
 }
 
-func pokemap() error {
+func pokemap(args []string) error {
 	var url string
 	if config.next == "" {
 		url = config.mapStart
@@ -70,7 +54,7 @@ func pokemap() error {
 	return nil
 }
 
-func pokemapb() error {
+func pokemapb(args []string) error {
 	var url string
 	if config.prev == "" {
 		return errors.New("No previous locations")

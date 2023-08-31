@@ -10,4 +10,3 @@ func TestCleanInputLower(t *testing.T) {
 		t.Errorf("clean_input(%q) == %q, expected %q", input, actual, expected)
 	}
 }
- 
