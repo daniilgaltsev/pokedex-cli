@@ -22,11 +22,13 @@ type cliConfig struct {
 	next string
 	mapStart string
 	currentOffset int
+	pokemons map[string]pokemonResponse
 }
 var config cliConfig // NOTE: This should be made a non-global variable
 
 var mapCache = cache.NewCache(20 * time.Second) // NOTE: This should be made a non-global variable
 var exploreCache = cache.NewCache(20 * time.Second) // NOTE: This should _also_ be made a non-global variable
+var pokemonCache = cache.NewCache(20 * time.Second)
 
 
 func exit(args []string) error {
@@ -50,9 +52,8 @@ func clean_input(s string) string {
 
 func initCli() {
 	config = cliConfig{
-		prev: "",
-		next: "",
 		mapStart: "https://pokeapi.co/api/v2/location-area/",
+		pokemons: make(map[string]pokemonResponse),
 	}
 	commands = map[string]command{
 		"exit": command{
@@ -76,8 +77,13 @@ func initCli() {
 			nargs: 0,
 		},
 		"explore": command{
-			help: "Explore a location",
+			help: "Explore a location. Takes one argument: the location name.",
 			function: explore,
+			nargs: 1,
+		},
+		"catch": command{
+			help: "Catch a pokemon. Takes one argument: the pokemon name.",
+			function: catch,
 			nargs: 1,
 		},
 	}
