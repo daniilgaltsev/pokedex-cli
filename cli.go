@@ -86,6 +86,11 @@ func initCli() {
 			function: catch,
 			nargs: 1,
 		},
+		"inspect": command{
+			help: "Inspect a pokemon. Takes one argument: the pokemon name.",
+			function: inspect,
+			nargs: 1,
+		},
 	}
 
 }
