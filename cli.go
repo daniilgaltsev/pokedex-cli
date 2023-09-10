@@ -91,6 +91,11 @@ func initCli() {
 			function: inspect,
 			nargs: 1,
 		},
+		"pokedex": command{
+			help: "Show the caught pokemons",
+			function: pokedex,
+			nargs: 0,
+		},
 	}
 
 }

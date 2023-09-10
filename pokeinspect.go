@@ -29,3 +29,15 @@ func inspect(args []string) error {
 
 	return nil
 }
+
+func pokedex(args []string) error {
+	fmt.Printf("Your Pokedex:\n")
+	if len(config.pokemons) == 0 {
+		fmt.Printf(" Hmmm... Empty for now.\n")
+		return nil
+	}
+	for name, _ := range config.pokemons {
+		fmt.Printf(" - %s\n", name)
+	}
+	return nil
+}
